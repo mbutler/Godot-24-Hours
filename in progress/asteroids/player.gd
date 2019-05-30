@@ -2,6 +2,11 @@ extends Area2D
 const MOVE_SPEED = 150.0
 const SCREEN_WIDTH = 320
 const SCREEN_HEIGHT = 180
+var shot_scene = preload("res://shot.tscn")
+var explosion_scene = preload("res://explosion.tscn")
+var can_shoot = true
+
+signal destroyed
 
 func _process(delta):
 	var input_dir = Vector2()
@@ -24,4 +29,28 @@ func _process(delta):
 		position.y = 0.0
 	if position.y > SCREEN_HEIGHT:
 		position.y = SCREEN_HEIGHT
+		
+	if Input.is_key_pressed(KEY_SPACE) and can_shoot:
+		var stage_node = get_parent()
+		var shot_instance = shot_scene.instance()
+		shot_instance.position = position
+		stage_node.add_child(shot_instance)
+		can_shoot = false
+		get_node("reload_timer").start()
+		
 	
+
+func _on_reload_timer_timeout():
+	can_shoot = true
+
+
+func _on_player_area_entered(area):
+	if area.is_in_group("asteroid"):
+		queue_free()
+		
+		var stage_node = get_parent()
+		var explosion_instance = explosion_scene.instance()
+		explosion_instance.position = position
+		stage_node.add_child(explosion_instance)
+		
+		emit_signal("destroyed")

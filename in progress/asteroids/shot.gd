@@ -6,3 +6,7 @@ func _process(delta):
 	position += Vector2(MOVE_SPEED * delta, 0.0)
 	if position.x >= SCREEN_WIDTH + 8:
 		queue_free()
+
+func _on_shot_area_entered(area):
+	if area.is_in_group("asteroid"):
+		queue_free()
